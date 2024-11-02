@@ -41,11 +41,16 @@ def predict():
     features = extract_features(temp_file_path)
     features = scaler.transform(features.reshape(1, -1))  # Normalize features
 
-    # Make prediction
-    predicted_emotion = model.predict(features)
+    # Make prediction and get confidence
+    predicted_emotion = model.predict(features)[0]
+    prediction_probabilities = model.predict_proba(features)
+    confidence = np.max(prediction_probabilities) * 100  # Confidence level for the predicted emotion
 
-    # Return the predicted emotion
-    return jsonify({'predicted_emotion': predicted_emotion[0]}), 200
+    # Return the predicted emotion and confidence level
+    return jsonify({
+        'predicted_emotion': predicted_emotion,
+        'confidence': f"{confidence:.2f}%"
+    }), 200
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)  # Change port as needed
